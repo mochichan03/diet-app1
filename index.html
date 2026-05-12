@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="わたしのダイエット">
+<title>わたしのダイエット</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#F2A7C3;--pink-l:#FDE8F1;--pink-d:#C4507A;--pink-deep:#9B2D5A;
+  --mint:#A8DDD0;--mint-l:#E4F7F3;--mint-d:#3A8A7A;
+  --peach:#FFCBA4;--peach-l:#FFF0E6;--peach-d:#C8622A;
+  --lav:#C9B8E8;--lav-l:#EEE8FA;--lav-d:#6B4FAA;
+  --cream:#FFF8F3;--white:#FFFFFF;
+  --text:#3A2D35;--sub:#7A6570;--hint:#B09AA8;--border:#EDD8E4;
+  --bg:#FFF4F9;
+  --r:20px;--rs:14px;--rxs:10px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+/* SCROLLABLE SCREEN */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(76px + var(--safe-bottom));}
+.screen.hidden{display:none;}
+
+/* BOTTOM NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--border);display:flex;z-index:200;padding-bottom:var(--safe-bottom);border-radius:22px 22px 0 0;box-shadow:0 -4px 20px rgba(242,167,195,0.15);}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;border:none;background:transparent;color:var(--hint);font-size:10px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;gap:3px;transition:color .2s;}
+.nb.active{color:var(--pink-d);}
+.nb-icon{font-size:22px;line-height:1;}
+
+/* HEADER */
+.hdr{padding:52px 20px 20px;background:linear-gradient(160deg,#F9C6DC 0%,#FADADF 50%,#FDE8F1 100%);position:relative;overflow:hidden;}
+.hdr::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,.25);border-radius:50%;}
+.hdr::after{content:'';position:absolute;bottom:-20px;left:-10px;width:80px;height:80px;background:rgba(255,255,255,.15);border-radius:50%;}
+.hdr-label{font-size:11px;color:var(--pink-deep);letter-spacing:.1em;margin-bottom:4px;position:relative;z-index:1;}
+.hdr-title{font-size:21px;font-weight:700;color:var(--pink-deep);line-height:1.3;position:relative;z-index:1;}
+.hdr-sub{font-size:12px;color:var(--pink-d);margin-top:3px;position:relative;z-index:1;}
+.hdr-sm{padding:48px 20px 16px;background:linear-gradient(160deg,#F9C6DC 0%,#FDE8F1 100%);position:relative;overflow:hidden;}
+.hdr-sm::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,.2);border-radius:50%;}
+.hdr-sm-title{font-size:18px;font-weight:700;color:var(--pink-deep);position:relative;z-index:1;}
+.hdr-sm-sub{font-size:12px;color:var(--pink-d);margin-top:3px;position:relative;z-index:1;}
+
+/* MOCHI CHARACTER SVG */
+.mochi-wrap{position:relative;z-index:1;}
+
+/* METRICS */
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;position:relative;z-index:1;}
+.metric-card{background:rgba(255,255,255,.7);border-radius:var(--rs);padding:11px 13px;backdrop-filter:blur(4px);}
+.metric-label{font-size:10px;color:var(--pink-d);margin-bottom:3px;}
+.metric-value{font-size:18px;font-weight:700;color:var(--pink-deep);}
+.metric-sub{font-size:10px;color:var(--pink-d);margin-top:2px;opacity:.8;}
+
+/* CONTENT */
+.content{padding:16px;}
+.sec{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--hint);margin:20px 0 8px 4px;}
+.sec:first-child{margin-top:4px;}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--r);padding:16px;margin-bottom:10px;border:1.5px solid var(--border);}
+.card-rose{background:var(--pink-l);border-color:#F5C0D4;}
+.card-mint{background:var(--mint-l);border-color:#BDE7DF;}
+.card-lav{background:var(--lav-l);border-color:#D8CCEE;}
+.card-peach{background:var(--peach-l);border-color:#F5D4BB;}
+.card-title{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text);}
+
+/* MOCHI SPEECH BUBBLE */
+.bubble-wrap{display:block;margin-bottom:14px;}
+.bubble{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:12px 16px;font-size:13px;color:var(--text);line-height:1.65;position:relative;box-shadow:0 2px 8px rgba(242,167,195,.15);}
+.bubble.mint{background:var(--mint-l);border-color:#BDE7DF;border-radius:16px;}
+.bubble.peach{background:var(--peach-l);border-color:#F5D4BB;}
+.bubble strong{color:var(--pink-d);}
+
+/* PROGRESS */
+.prog-wrap{background:var(--pink-l);border-radius:99px;height:10px;overflow:hidden;margin:8px 0 5px;}
+.prog-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--pink) 0%,var(--pink-d) 100%);transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.prog-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);}
+
+/* MEAL ROWS */
+.meal-row{display:flex;gap:12px;padding:11px 0;border-bottom:1.5px solid var(--pink-l);}
+.meal-row:last-child{border-bottom:none;padding-bottom:0;}
+.meal-time{font-size:11px;color:var(--hint);min-width:34px;padding-top:2px;flex-shrink:0;}
+.meal-name{font-size:14px;font-weight:500;line-height:1.4;color:var(--text);}
+.meal-detail{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;}
+
+/* PILLS */
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;}
+.pp{background:var(--pink-l);color:var(--pink-d);}
+.pm{background:var(--mint-l);color:var(--mint-d);}
+.pa{background:var(--peach-l);color:var(--peach-d);}
+.pl{background:var(--lav-l);color:var(--lav-d);}
+
+/* BENTO CARDS */
+.bento{background:var(--white);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;border:1.5px solid var(--border);}
+.bento.pink{border-left:5px solid var(--pink);border-color:var(--border);}
+.bento.mint{border-left:5px solid var(--mint);border-color:var(--border);}
+.bento.peach{border-left:5px solid var(--peach);border-color:var(--border);}
+.bento-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.bento-title{font-size:14px;font-weight:700;color:var(--text);}
+.bento-items{font-size:13px;color:var(--sub);line-height:2.1;}
+.bento-kcal{font-size:12px;color:var(--hint);margin-top:6px;}
+
+/* EX */
+.ex-row{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1.5px solid var(--pink-l);}
+.ex-row:last-child{border-bottom:none;}
+.ex-day{font-size:11px;font-weight:700;color:var(--hint);min-width:40px;padding-top:2px;}
+.ex-name{font-size:14px;font-weight:500;color:var(--text);}
+.ex-detail{font-size:12px;color:var(--sub);margin-top:2px;line-height:1.5;}
+.kcal-pill{font-size:11px;padding:3px 8px;border-radius:99px;background:var(--mint-l);color:var(--mint-d);flex-shrink:0;margin-top:2px;}
+
+/* STEP */
+.step-row{display:flex;gap:12px;align-items:center;padding:9px 0;}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--pink-l);color:var(--pink-d);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* LIST */
+.li{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1.5px solid var(--pink-l);font-size:13px;line-height:1.6;color:var(--text);}
+.li:last-child{border-bottom:none;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--pink);flex-shrink:0;margin-top:5px;}
+.dot-r{background:#F08080;}
+.dot-m{background:var(--mint);}
+
+/* WEIGHT INPUT */
+.w-input-card{background:linear-gradient(135deg,#F9C6DC,#FADADF);border-radius:var(--r);padding:20px;margin-bottom:10px;border:1.5px solid #F5C0D4;}
+.w-label{font-size:12px;color:var(--pink-deep);margin-bottom:10px;font-weight:500;}
+.w-row{display:flex;align-items:center;gap:10px;}
+.w-field{flex:1;background:rgba(255,255,255,.8);border:1.5px solid rgba(196,80,122,.3);border-radius:var(--rs);padding:12px 14px;font-size:20px;font-weight:700;font-family:'Noto Sans JP',sans-serif;color:var(--pink-deep);outline:none;}
+.w-field::placeholder{color:rgba(196,80,122,.3);}
+.w-field:focus{border-color:var(--pink-d);background:#fff;}
+.w-unit{color:var(--pink-deep);font-size:16px;font-weight:700;flex-shrink:0;}
+.save-btn{background:var(--pink-d);color:#fff;border:none;border-radius:var(--rs);padding:12px 18px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+.save-btn:active{opacity:.8;}
+.today-w{text-align:center;font-size:12px;color:var(--pink-deep);margin-top:10px;font-weight:500;}
+
+/* CHART */
+.chart-wrap{position:relative;height:170px;margin:4px 0 6px;}
+
+/* HISTORY */
+.hist-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1.5px solid var(--pink-l);}
+.hist-row:last-child{border-bottom:none;}
+.hist-date{font-size:12px;color:var(--hint);min-width:68px;}
+.hist-w{font-size:16px;font-weight:700;color:var(--text);flex:1;}
+.hist-diff{font-size:12px;font-weight:700;}
+.diff-d{color:var(--mint-d);}
+.diff-u{color:#D95F5F;}
+.del-btn{background:none;border:none;color:var(--hint);font-size:18px;cursor:pointer;padding:4px;}
+
+/* SHOP */
+.shop-hdr{background:linear-gradient(135deg,#F9C6DC,#FADADF);border-radius:var(--r) var(--r) 0 0;padding:16px 18px;margin-bottom:1px;border:1.5px solid #F5C0D4;border-bottom:none;}
+.shop-hdr-title{font-size:15px;font-weight:700;color:var(--pink-deep);margin-bottom:6px;}
+.sp-wrap{background:rgba(255,255,255,.5);border-radius:99px;height:6px;overflow:hidden;}
+.sp-bar{height:100%;background:var(--pink-d);border-radius:99px;transition:width .3s;}
+.sp-text{font-size:12px;color:var(--pink-deep);margin-top:5px;}
+.shop-items{display:flex;flex-direction:column;gap:1px;}
+.shop-item{background:var(--white);display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;user-select:none;transition:background .1s;position:relative;border-left:1.5px solid transparent;}
+.shop-items .shop-item:last-child{border-radius:0 0 var(--rs) var(--rs);}
+.shop-item:not(:last-child)::after{content:'';position:absolute;bottom:0;left:46px;right:0;height:1px;background:var(--pink-l);}
+.shop-item.is-new{border-left:3px solid var(--peach-d);}
+.shop-item.checked{background:#FFF8FB;}
+.shop-item.checked .sname,.shop-item.checked .snote{color:var(--hint);text-decoration:line-through;}
+.schk{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.shop-item.checked .schk{background:var(--pink-d);border-color:var(--pink-d);}
+.ci{display:none;}
+.shop-item.checked .ci{display:block;}
+.sname{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;}
+.snote{font-size:12px;color:var(--sub);margin-top:2px;}
+.add-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:var(--peach-l);color:var(--peach-d);flex-shrink:0;}
+.reset-btn{display:block;margin:14px auto 0;font-size:13px;font-family:'Noto Sans JP',sans-serif;padding:10px 28px;border-radius:99px;border:1.5px solid var(--border);background:var(--white);color:var(--sub);cursor:pointer;}
+.empty{text-align:center;padding:28px;color:var(--hint);font-size:13px;}
+
+/* PLAN INNER TABS */
+.ptab-bar{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--white);border-bottom:1.5px solid var(--border);position:sticky;top:0;z-index:50;}
+.ptab-bar::-webkit-scrollbar{display:none;}
+.ptb{flex-shrink:0;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:500;padding:12px 16px;border:none;background:transparent;color:var(--hint);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap;}
+.ptb.active{color:var(--pink-d);border-bottom-color:var(--pink-d);}
+
+/* ANIMATIONS */
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes wiggle{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+@keyframes pop{0%{transform:scale(1);}50%{transform:scale(1.12);}100%{transform:scale(1);}}
+.mochi-bounce{animation:bounce 2.5s ease-in-out infinite;}
+.mochi-saved{animation:pop .4s ease;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="s-home" class="screen">
+  <div class="hdr">
+    <div class="hdr-label">わたしのダイエット🌸</div>
+    <div class="hdr-title" id="greeting">おはようございます！</div>
+    <div class="hdr-sub" id="today-str"></div>
+    <div class="metric-row">
+      <div class="metric-card"><div class="metric-label">スタート体重</div><div class="metric-value">62 kg</div><div class="metric-sub">BMI 21.5</div></div>
+      <div class="metric-card"><div class="metric-label">目標体重</div><div class="metric-value">57 kg</div><div class="metric-sub">BMI 19.7 ✨</div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- MOCHI SPEECH -->
+    <div class="sec">今日のひとこと</div>
+    <div class="bubble-wrap" style="display:block;">
+      <div class="bubble" id="home-msg">🌸 今日もいっしょにがんばろう！💪<br><strong>体重を記録</strong>して進捗を確認してね</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="sec">目標への進捗</div>
+    <div class="card card-rose">
+      <div class="card-title">目標まであと <span id="remain-kg" style="color:var(--pink-d);font-size:20px;font-weight:700;">— </span>kg 🎯</div>
+      <div class="prog-wrap"><div class="prog-bar" id="home-prog" style="width:0%"></div></div>
+      <div class="prog-labels"><span>62 kg</span><span>🎉 57 kg</span></div>
+      <div style="margin-top:10px;font-size:13px;color:var(--sub);">最新体重：<span id="latest-w" style="font-weight:700;color:var(--pink-d);">未記録</span></div>
+    </div>
+
+    <!-- TODAY MEAL -->
+    <div class="sec">今日の食事プラン</div>
+    <div class="card">
+      <div class="meal-row"><div class="meal-time">朝食</div><div><div class="meal-name">ヨーグルト＋バナナ＋ゆで卵</div><div class="meal-detail">約350 kcal ／ 5分でOK</div></div></div>
+      <div class="meal-row"><div class="meal-time">昼食</div><div><div class="meal-name">お弁当</div><div class="meal-detail">約450〜500 kcal</div></div></div>
+      <div class="meal-row"><div class="meal-time">夕食</div><div><div class="meal-name">メイン＋野菜スープ＋ご飯100g</div><div class="meal-detail">約550〜600 kcal</div></div></div>
+    </div>
+
+    <!-- TODAY EX -->
+    <div class="sec">今日の運動</div>
+    <div class="card card-mint">
+      <div class="ex-row"><div class="ex-day">帰宅後</div><div style="flex:1;"><div class="ex-name">🚴 エアロバイク 20〜30分</div><div class="ex-detail">負荷3〜4。テレビを見ながらでOK！</div></div><div class="kcal-pill">約150 kcal</div></div>
+      <div class="ex-row"><div class="ex-day">ながら</div><div style="flex:1;"><div class="ex-name">🌀 フラフープ 5〜10分</div><div class="ex-detail">腰回り引き締め！座りながらも◎</div></div><div class="kcal-pill">約50 kcal</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WEIGHT SCREEN -->
+<div id="s-weight" class="screen hidden">
+  <div class="hdr-sm">
+    <div class="hdr-sm-title">⚖️ 体重記録</div>
+    <div class="hdr-sm-sub">毎日記録して変化を見てみよう</div>
+  </div>
+  <div class="content">
+    <!-- input -->
+    <div class="w-input-card">
+      <div class="w-label">今日の体重を入力してね✏️</div>
+      <div class="w-row">
+        <input class="w-field" id="w-input" type="number" step="0.1" min="30" max="150" placeholder="62.0">
+        <span class="w-unit">kg</span>
+        <button class="save-btn" onclick="saveWeight()">保存 🌸</button>
+      </div>
+      <div class="today-w" id="today-w-label"></div>
+    </div>
+
+    <!-- message -->
+    <div class="bubble-wrap" style="display:block;">
+      
+      <div class="bubble" id="weight-msg">💕 記録、えらい！続けることが一番大切だよ💕</div>
+    </div>
+
+    <div class="sec">グラフ（直近14日）</div>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="wchart"></canvas></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--hint);margin-top:6px;">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:2px;background:var(--pink-d);"></span>実績</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:12px;height:2px;background:var(--mint-d);border-top:2px dashed var(--mint-d);"></span>目標57 kg</span>
+      </div>
+    </div>
+
+    <div class="sec">記録履歴</div>
+    <div class="card" id="hist-list"><div class="empty">まだ記録がありません🌱</div></div>
+  </div>
+</div>
+
+<!-- PLAN SCREEN -->
+<div id="s-plan" class="screen hidden">
+  <div class="hdr-sm">
+    <div class="hdr-sm-title">📋 ダイエットプラン</div>
+    <div class="hdr-sm-sub">食事・お弁当・運動・ルールをチェック</div>
+  </div>
+  <div class="ptab-bar">
+    <button class="ptb active" id="pt-food" onclick="showPT('food')">🥗 食事</button>
+    <button class="ptb" id="pt-bento" onclick="showPT('bento')">🍱 弁当</button>
+    <button class="ptb" id="pt-ex" onclick="showPT('ex')">🚴 運動</button>
+    <button class="ptb" id="pt-rule" onclick="showPT('rule')">💡 ルール</button>
+  </div>
+
+  <div id="pt-food-c" class="content">
+    <div class="bubble-wrap" style="display:block;" style="margin-bottom:8px;">
+      
+      <div class="bubble" style="font-size:12px;">🍚 旦那さんとごはんは同じメニューでOK！量だけ調整してね🍚</div>
+    </div>
+    <div class="sec">1日の食事プラン</div>
+    <div class="card">
+      <div class="meal-row"><div class="meal-time">朝食</div><div><div class="meal-name">ヨーグルト＋バナナ＋ゆで卵</div><div class="meal-detail">無糖ヨーグルト150g・バナナ1本・ゆで卵1個 ／ 約350 kcal</div></div></div>
+      <div class="meal-row"><div class="meal-time">昼食</div><div><div class="meal-name">お弁当</div><div class="meal-detail">約450〜500 kcal</div></div></div>
+      <div class="meal-row"><div class="meal-time">夕食</div><div><div class="meal-name">メイン＋野菜スープ＋ご飯100g</div><div class="meal-detail">鶏むね・魚・豆腐から1品 ／ 約550〜600 kcal</div></div></div>
+    </div>
+    <div class="sec">週の夕食ローテーション</div>
+    <div class="card">
+      <div class="meal-row"><div class="meal-time">月・木</div><div><div class="meal-name">鶏むね肉のソテー＋きのこ味噌汁</div><div class="meal-detail">塩こしょう or 醤油麹で味付け</div></div></div>
+      <div class="meal-row"><div class="meal-time">火・金</div><div><div class="meal-name">鮭の蒸し焼き＋豆腐の冷奴</div><div class="meal-detail">フライパンで蒸し焼き。ポン酢で</div></div></div>
+      <div class="meal-row"><div class="meal-time">水</div><div><div class="meal-name">豚しゃぶサラダ＋わかめスープ</div><div class="meal-detail">レタス・トマト・きゅうり＋豚肉。ごまだれで</div></div></div>
+      <div class="meal-row"><div class="meal-time">週末</div><div><div class="meal-name">少し自由に。外食もOK🍽️</div><div class="meal-detail">腹八分に。旦那さんと同じものでOK</div></div></div>
+    </div>
+  </div>
+
+  <div id="pt-bento-c" class="content" style="display:none;">
+    <div class="sec">お弁当3パターン</div>
+    <div class="bento pink"><div class="bento-hdr"><span class="pill pp">月・水・金</span><span class="bento-title">鶏むねそぼろ弁当</span></div><div class="bento-items">・鶏むね or 鶏ミンチのそぼろ<br>・甘い炒り卵<br>・ブロッコリー塩ゆで<br>・ご飯130g</div><div class="bento-kcal">約450 kcal ／ たんぱく質豊富💪</div></div>
+    <div class="bento mint"><div class="bento-hdr"><span class="pill pm">火・木</span><span class="bento-title">鮭おにぎり弁当</span></div><div class="bento-items">・鮭おにぎり 2個（海苔で包む）<br>・きんぴらごぼう<br>・ほうれん草ごま和え<br>・ミニトマト 5〜6個</div><div class="bento-kcal">約480 kcal ／ 食物繊維豊富🌿</div></div>
+    <div class="bento peach"><div class="bento-hdr"><span class="pill pa">手抜きOK</span><span class="bento-title">サラダチキン弁当</span></div><div class="bento-items">・市販サラダチキン 1袋<br>・玄米おにぎり 1個<br>・カットサラダ（袋から出すだけ）<br>・ゆで卵 1個</div><div class="bento-kcal">約400 kcal ／ 準備5分以内✨</div></div>
+    <div class="sec">作り置きTips</div>
+    <div class="card card-lav">
+      <div class="card-title">🕐 週末30分まとめ仕込み</div>
+      <div class="li"><div class="dot dot-m"></div><div>ゆで卵5個（殻つきで冷蔵4〜5日）</div></div>
+      <div class="li"><div class="dot dot-m"></div><div>きんぴらごぼう（3日分）</div></div>
+      <div class="li"><div class="dot dot-m"></div><div>鶏むねそぼろ（冷凍保存OK！）</div></div>
+      <div class="li"><div class="dot dot-m"></div><div>ブロッコリー塩ゆで（3日分）</div></div>
+    </div>
+    <div style="background:var(--lav-l);border-radius:var(--rs);padding:12px 14px;font-size:12px;color:var(--lav-d);line-height:1.7;border:1.5px solid #D8CCEE;">平日の朝は詰めるだけ！朝5分で完成するよ🎀</div>
+  </div>
+
+  <div id="pt-ex-c" class="content" style="display:none;">
+    <div class="bubble-wrap" style="display:block;">
+      
+      <div class="bubble" style="font-size:12px;">🚴 毎日じゃなくていいよ！週4〜5日できれば十分🌸</div>
+    </div>
+    <div class="sec">週間スケジュール</div>
+    <div class="card">
+      <div class="ex-row"><div class="ex-day">平日</div><div style="flex:1;"><div class="ex-name">🚴 エアロバイク 20〜30分</div><div class="ex-detail">負荷3〜4段階。帰宅後〜夕食前。ドラマを見ながらでOK！</div></div><div class="kcal-pill">約150 kcal</div></div>
+      <div class="ex-row"><div class="ex-day">平日</div><div style="flex:1;"><div class="ex-name">🌀 フラフープ 5〜10分</div><div class="ex-detail">腰回り引き締め＆有酸素の両方に効く！</div></div><div class="kcal-pill">約50 kcal</div></div>
+      <div class="ex-row"><div class="ex-day">週末</div><div style="flex:1;"><div class="ex-name">🚴 エアロバイク 40分＋ストレッチ</div><div class="ex-detail">余裕があれば負荷をすこし上げてみよう</div></div><div class="kcal-pill">約250 kcal</div></div>
+    </div>
+    <div class="sec">月別ステップアップ</div>
+    <div class="card card-mint">
+      <div class="step-row"><div class="step-num">1</div><div style="font-size:13px;color:var(--sub);line-height:1.5;"><strong>1ヶ月目</strong>：平日20分。まず「乗る習慣」をつくる</div></div>
+      <div class="step-row"><div class="step-num">2</div><div style="font-size:13px;color:var(--sub);line-height:1.5;"><strong>2ヶ月目</strong>：25〜30分。フラフープを10分に延ばす</div></div>
+      <div class="step-row"><div class="step-num">3</div><div style="font-size:13px;color:var(--sub);line-height:1.5;"><strong>3ヶ月目</strong>：30分＋スクワット・腹筋10回ずつ</div></div>
+    </div>
+  </div>
+
+  <div id="pt-rule-c" class="content" style="display:none;">
+    <div class="sec">積極的に食べたいもの</div>
+    <div class="card">
+      <div class="li"><div class="dot"></div><div>鶏むね肉・白身魚・豆腐（たんぱく質源。毎食1品を目標）</div></div>
+      <div class="li"><div class="dot"></div><div>葉物野菜・きのこ・海藻（かさ増し＆食物繊維）</div></div>
+      <div class="li"><div class="dot"></div><div>無糖ヨーグルト・納豆（腸内環境を整える）</div></div>
+      <div class="li"><div class="dot"></div><div>味噌汁・スープ（食前に飲むと食べすぎ防止）</div></div>
+      <div class="li"><div class="dot"></div><div>水・緑茶・ブラックコーヒー（カロリーゼロ）</div></div>
+    </div>
+    <div class="sec">減らしたいもの</div>
+    <div class="card">
+      <div class="li"><div class="dot dot-r"></div><div>菓子パン・甘いパン（朝食の置き換えに注意）</div></div>
+      <div class="li"><div class="dot dot-r"></div><div>缶コーヒー・甘い飲み物（気づかず高カロリー）</div></div>
+      <div class="li"><div class="dot dot-r"></div><div>夜のお菓子・スナック</div></div>
+      <div class="li"><div class="dot dot-r"></div><div>白米の食べすぎ（1食130gを目安に）</div></div>
+      <div class="li"><div class="dot dot-r"></div><div>コンビニスイーツ（週1〜2回まではOK！）</div></div>
+    </div>
+    <div class="sec">シーン別ルール</div>
+    <div class="card card-peach">
+      <div class="meal-row"><div class="meal-time">コンビニ</div><div><div class="meal-name">おにぎり1個＋サラダチキン＋サラダ</div><div class="meal-detail">スイーツは週2回まではOK🍡</div></div></div>
+      <div class="meal-row"><div class="meal-time">外食</div><div><div class="meal-name">定食系を選ぶ</div><div class="meal-detail">揚げ物は1品まで。ご飯少なめをお願いして</div></div></div>
+      <div class="meal-row"><div class="meal-time">夜遅い日</div><div><div class="meal-name">帰宅前におにぎり1個で緩衝</div><div class="meal-detail">帰宅後はスープ＋おかずのみでOK</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP SCREEN -->
+<div id="s-shop" class="screen hidden">
+  <div class="hdr-sm">
+    <div class="hdr-sm-title">🛒 買い物リスト</div>
+    <div class="hdr-sm-sub">今週の食材（2人分）</div>
+  </div>
+  <div class="content">
+    <div class="shop-hdr">
+      <div class="shop-hdr-title">チェックしながら買い物しよう🌸</div>
+      <div class="sp-wrap"><div class="sp-bar" id="sp-bar" style="width:0%"></div></div>
+      <div class="sp-text"><span id="sp-done">0</span> / <span id="sp-total">0</span> 品チェック済み</div>
+    </div>
+    <div id="shop-list"></div>
+    <button class="reset-btn" onclick="resetShop()">リセット 🔄</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nb active" id="nb-home" onclick="showScreen('home')"><span class="nb-icon">🏠</span>ホーム</button>
+  <button class="nb" id="nb-weight" onclick="showScreen('weight')"><span class="nb-icon">⚖️</span>体重</button>
+  <button class="nb" id="nb-plan" onclick="showScreen('plan')"><span class="nb-icon">📋</span>プラン</button>
+  <button class="nb" id="nb-shop" onclick="showScreen('shop')"><span class="nb-icon">🛒</span>買い物</button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// STORAGE
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+
+// WEIGHT
+let weights=LS.get('my_diet_weights')||[];
+const START=62,GOAL=57;
+let chart=null;
+
+const cheerMsgs=[
+  '💕 記録、えらい！続けることが一番大切だよ',
+  '💪 今日もちゃんと記録してえらい！',
+  '🌸 少しずつでも記録することが大事だよ',
+  '✨ コツコツ続けることがいちばんの近道だよ',
+  '🎀 がんばってるね！応援してるよ',
+];
+const homeMsgs=[
+  '今日もいっしょにがんばろう！💪<br><strong>体重を記録</strong>して進捗を確認してね',
+  '無理せず、少しずつでいいんだよ🍃<br>今日もかわいくいこう！',
+  'おつかれさまです！夕食は20時前がベスト⏰<br>遅い日は<strong>おにぎり1個</strong>で緩衝してね',
+  '週末に作り置きすると平日がラクになるよ🥕<br>応援してる💕',
+  '今日の運動、できたかな？<br>できなくても大丈夫！<strong>明日また頑張れ</strong>ばいいよ🌈',
+];
+
+function saveWeight(){
+  const v=parseFloat(document.getElementById('w-input').value);
+  if(isNaN(v)||v<30||v>200){alert('正しい体重を入力してください');return;}
+  const today=todayStr();
+  weights=weights.filter(w=>w.date!==today);
+  weights.push({date:today,w:v});
+  weights.sort((a,b)=>a.date.localeCompare(b.date));
+  LS.set('my_diet_weights',weights);
+  document.getElementById('w-input').value='';
+  const idx=Math.floor(Math.random()*cheerMsgs.length);
+  document.getElementById('weight-msg').textContent=cheerMsgs[idx];
+  renderWeight();updateHome();
+}
+
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(s){const[,m,d]=s.split('-');return m+'月'+d+'日';}
+
+function renderWeight(){
+  const today=todayStr();
+  const tr=weights.find(w=>w.date===today);
+  document.getElementById('today-w-label').textContent=tr?'今日の記録：'+tr.w+' kg ✅':'今日はまだ記録していないよ📝';
+  const hist=document.getElementById('hist-list');
+  if(!weights.length){hist.innerHTML='<div class="empty">まだ記録がありません🌱<br>体重を入力してみよう！</div>';return;}
+  hist.innerHTML='';
+  const rev=[...weights].reverse();
+  rev.forEach((rec,i)=>{
+    const prev=rev[i+1];let dh='';
+    if(prev){const d=(rec.w-prev.w).toFixed(1);if(d<0)dh=`<span class="hist-diff diff-d">${d} kg</span>`;else if(d>0)dh=`<span class="hist-diff diff-u">+${d} kg</span>`;else dh=`<span class="hist-diff" style="color:var(--hint);">±0</span>`;}
+    const row=document.createElement('div');row.className='hist-row';
+    row.innerHTML=`<span class="hist-date">${fmtDate(rec.date)}</span><span class="hist-w">${rec.w} kg</span>${dh}<button class="del-btn" onclick="delW('${rec.date}')">×</button>`;
+    hist.appendChild(row);
+  });
+  drawChart();
+}
+
+function delW(date){if(!confirm(fmtDate(date)+'の記録を削除しますか？'))return;weights=weights.filter(w=>w.date!==date);LS.set('my_diet_weights',weights);renderWeight();updateHome();}
+
+function drawChart(){
+  const ctx=document.getElementById('wchart').getContext('2d');
+  const rec=weights.slice(-14);
+  if(!rec.length){if(chart){chart.destroy();chart=null;}ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);ctx.fillStyle='#B09AA8';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('記録が増えるとグラフが表示されます🌸',ctx.canvas.width/2,85);return;}
+  const labels=rec.map(w=>fmtDate(w.date));const vals=rec.map(w=>w.w);
+  const all=[...vals,START,GOAL];const mn=Math.min(...all)-.5,mx=Math.max(...all)+.5;
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'体重',data:vals,borderColor:'#C4507A',backgroundColor:'rgba(242,167,195,.12)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#C4507A',pointBorderColor:'#fff',pointBorderWidth:2,tension:.4,fill:true},
+    {label:'目標',data:Array(labels.length).fill(GOAL),borderColor:'#3A8A7A',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' kg'}}},scales:{y:{min:mn,max:mx,ticks:{font:{size:11},callback:v=>v+' kg'},grid:{color:'rgba(0,0,0,.04)'}},x:{ticks:{font:{size:10},maxRotation:0},grid:{display:false}}}}});
+}
+
+function updateHome(){
+  const latest=weights[weights.length-1];
+  if(latest){const rem=Math.max(0,(latest.w-GOAL)).toFixed(1);const pct=Math.min(100,Math.round((START-latest.w)/(START-GOAL)*100));document.getElementById('remain-kg').textContent=rem;document.getElementById('home-prog').style.width=Math.max(0,pct)+'%';document.getElementById('latest-w').textContent=latest.w+' kg（'+fmtDate(latest.date)+'）';}
+  else{document.getElementById('remain-kg').textContent='—';document.getElementById('home-prog').style.width='0%';document.getElementById('latest-w').textContent='未記録';}
+}
+
+// SCREENS
+function showScreen(name){
+  ['home','weight','plan','shop'].forEach(s=>{document.getElementById('s-'+s).classList.toggle('hidden',s!==name);document.getElementById('nb-'+s).classList.toggle('active',s===name);});
+  if(name==='weight')renderWeight();
+  if(name==='home'){const idx=Math.floor(Math.random()*homeMsgs.length);document.getElementById('home-msg').innerHTML=homeMsgs[idx];}
+}
+
+// PLAN TABS
+function showPT(name){
+  ['food','bento','ex','rule'].forEach(t=>{document.getElementById('pt-'+t+'-c').style.display=t===name?'block':'none';const b=document.getElementById('pt-'+t);b.classList.toggle('active',t===name);});
+}
+
+// SHOP
+const shopData=[
+  {cat:'🥩 たんぱく質',items:[
+    {name:'鶏むね肉（夕食・弁当用）',note:'300〜400g × 2パック',isNew:false},
+    {name:'鶏むね肉 or 鶏ミンチ（そぼろ用）',note:'200〜300g × 1パック',isNew:true},
+    {name:'鮭（切り身）',note:'3〜4切れ',isNew:false},
+    {name:'豚薄切り肉（しゃぶしゃぶ用）',note:'200g',isNew:false},
+    {name:'豆腐（絹ごし）',note:'2丁',isNew:false},
+    {name:'卵',note:'12〜15個パック',isNew:false},
+    {name:'納豆',note:'1パック（3個入り）',isNew:false},
+  ]},
+  {cat:'🥛 乳製品',items:[{name:'無糖ヨーグルト',note:'400〜500g',isNew:false}]},
+  {cat:'🥦 野菜',items:[
+    {name:'ブロッコリー',note:'1〜2株',isNew:false},
+    {name:'ほうれん草',note:'1袋',isNew:false},
+    {name:'きゅうり',note:'3〜4本',isNew:false},
+    {name:'レタス',note:'1玉',isNew:false},
+    {name:'ミニトマト',note:'1パック',isNew:false},
+    {name:'ごぼう',note:'1本（きんぴら用）',isNew:false},
+    {name:'もやし',note:'2袋',isNew:false},
+    {name:'えのき or しめじ',note:'各1袋',isNew:false},
+    {name:'キャベツ',note:'1/2玉（炒め物・弁当用）',isNew:true},
+  ]},
+  {cat:'🌿 海藻・乾物',items:[{name:'わかめ（乾燥）',note:'味噌汁用',isNew:false},{name:'海苔',note:'おにぎり用',isNew:false}]},
+  {cat:'🍚 炭水化物',items:[{name:'米（玄米もOK）',note:'なければ購入',isNew:false},{name:'玄米おにぎり（冷凍）',note:'手抜き弁当用',isNew:false}]},
+  {cat:'🧂 調味料',items:[
+    {name:'味噌',note:'なければ購入',isNew:false},
+    {name:'ポン酢',note:'蒸し魚・豚しゃぶに',isNew:false},
+    {name:'ごまだれ',note:'しゃぶしゃぶサラダ用',isNew:false},
+    {name:'白ごま',note:'ごま和え用',isNew:false},
+    {name:'鶏ガラスープの素',note:'スープ・炒め物に',isNew:false},
+    {name:'めんつゆ',note:'そぼろ・煮物に必須',isNew:true},
+    {name:'オリーブオイル',note:'炒め用（なければ）',isNew:false},
+    {name:'生姜チューブ',note:'そぼろの臭み取りに',isNew:true},
+  ]},
+  {cat:'🍌 果物',items:[{name:'バナナ',note:'5〜6本（朝食用）',isNew:false}]},
+  {cat:'🍵 飲み物',items:[{name:'緑茶 or 麦茶（茶葉・パック）',note:'甘い飲み物の代わりに',isNew:false}]},
+];
+const shopChecked=new Set();
+
+function renderShop(){
+  const c=document.getElementById('shop-list');c.innerHTML='';
+  let total=0,done=0;
+  shopData.forEach(cat=>{
+    const lbl=document.createElement('div');lbl.className='sec';lbl.style.padding='0 0 0 2px';lbl.textContent=cat.cat;c.appendChild(lbl);
+    const grid=document.createElement('div');grid.className='shop-items';
+    cat.items.forEach(it=>{
+      const key=cat.cat+it.name;const isDone=shopChecked.has(key);total++;if(isDone)done++;
+      const el=document.createElement('div');el.className='shop-item'+(it.isNew?' is-new':'')+(isDone?' checked':'');
+      el.innerHTML=`<div class="schk"><svg class="ci" width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div style="flex:1;min-width:0;"><div class="sname">${it.name}</div><div class="snote">${it.note}</div></div>${it.isNew?'<span class="add-badge">追加</span>':''}`;
+      el.addEventListener('click',()=>{shopChecked.has(key)?shopChecked.delete(key):shopChecked.add(key);renderShop();});
+      grid.appendChild(el);
+    });
+    c.appendChild(grid);
+  });
+  document.getElementById('sp-total').textContent=total;document.getElementById('sp-done').textContent=done;document.getElementById('sp-bar').style.width=total?(done/total*100)+'%':'0%';
+}
+
+function resetShop(){if(confirm('チェックをリセットしますか？')){shopChecked.clear();renderShop();}}
+
+// INIT
+function init(){
+  const h=new Date().getHours();
+  let g='こんにちは！';if(h<11)g='おはようございます！';else if(h>=18)g='おつかれさまです！';
+  document.getElementById('greeting').textContent=g+'✨';
+  const d=new Date();const days=['日','月','火','水','木','金','土'];
+  document.getElementById('today-str').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+days[d.getDay()]+'）';
+  updateHome();renderShop();
+}
+init();
+</script>
+</body>
+</html>
